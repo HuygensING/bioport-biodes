@@ -1,0 +1,44 @@
+<biodes version="1.0.1">
+  <fileDesc>
+    <title>titel van de biografie</title>
+    <ref target="http://url_van_de_biografie"/>
+    <publisher>
+      <name>naam van depublisher</name>
+      <ref target="http://url_van_de_publisher"/>
+    </publisher>
+    <author>auteur</author>
+    <date when="2009-11-11"/>
+    <revisionDesc>
+      <changed when="2009-11-11"/>
+    </revisionDesc>
+  </fileDesc>
+  <person>
+    <idno type="bioport">biodesid</idno>
+    <persName>Naam1</persName>
+    <persName><name type="prepositie">mr.</name> <name type="voornaam">Jan</name> <name type="intrapositie">van</name> <name type="geslachtsnaam">Voorbeeld</name> <name type="postpositie">Esq.</name></persName>
+    <persName>John</persName>
+    <sex value="1"/>
+    <event type="birth" when="2009-11-11">
+      <date>2009-11-11 in tekst</date>
+      <place>geboorteplaats</place>
+    </event>
+    <event type="death" when="2011-11-11">
+      <date>sterfdatum_tekst</date>
+      <place>sterfplaats</place>
+    </event>
+    <event type="marriage" when="1901-12-12">getrouwd met marietje</event>
+    <state type="occupation" from="1940" to="1960">schilder</state>
+    <state type="residence" from="1940" to="1960">Amsterdam</state>
+    <state type="claim_to_fame">Superbekende persoon!</state>
+    <state type="occupation" from="1940" to="1960">schilder<place>Amsterdam</place></state>
+  </person>
+  <biography>
+    <figure>
+      <graphic url="http://illustratie1.jpg"/>
+    </figure>
+    <figure>
+      <graphic url="http://illustratie2.jpg"/>
+    </figure>
+    <text>tekst van de biografie kan &lt;em&gt;Markup&lt;/em&gt; &lt;p&gt;bevatten&lt;/p&gt;</text>
+  </biography>
+</biodes>
