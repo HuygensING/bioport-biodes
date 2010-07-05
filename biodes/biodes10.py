@@ -1,19 +1,12 @@
-
-
 import types
+
 from lxml import etree
 from lxml.etree import Element, SubElement, XMLSyntaxError
-#from urllib import urlopen
 from xml.sax.saxutils import unescape
-#import sys
+
 from names.name import Naam
+
     
-class BDException(Exception):
-    pass
-class BDTypeError(BDException):
-    pass
-
-
 NAAM_TYPEN =  ['prepositie', 'voornaam', 'intrapositie', 'geslachtsnaam', 'postpositie']
 
 TRANSLATIONS = {
@@ -43,6 +36,15 @@ TRANSLATIONS = {
         'url_biografie':'url_biography',
 #        'url_publisher':'url_publisher',
         }
+        
+        
+class BDException(Exception):
+    pass
+
+class BDTypeError(BDException):
+    pass
+
+       
 
 def _translate(k):
     return TRANSLATIONS.get(k)
@@ -75,6 +77,7 @@ def is_date(s):
         return True
 
     return False
+
 
 class BioDesDoc:
     """
@@ -1038,3 +1041,5 @@ def is_valid_document(s):
     """return true if this document is a valid BioDes document"""
     #XXX implement this!
     return True
+    
+
