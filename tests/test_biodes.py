@@ -4,7 +4,7 @@ import sys
 import os
 import unittest
 
-from biodes import *
+from  biodes import *
 
 
 this_dir = os.path.dirname(__file__)
@@ -420,7 +420,20 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(len(states), 2)
         self.assertEqual([s.get('idno') for s in states], ['1', '3'])
 
-
+    def test_family(self):
+        doc = BioDesDoc().from_xml(self.create_element())
+        doc.add_relation(person="GiamPaolo1", name="marriage")
+        doc.add_relation(person="GiamPaolo2", name="child")
+        doc.add_relation(person="GiamPaolo3", name="father")
+        doc.add_relation(person="GiamPaolo4", name="mother")
+        doc.add_relation(person="GiamPaolo5", name="parent")
+       
+        self.assertEqual(doc.get_relation('marriage'), ['GiamPaolo1'])
+        self.assertEqual(doc.get_relation('child'), ['GiamPaolo2'])
+        self.assertEqual(doc.get_relation('father'), ['GiamPaolo3'])
+        self.assertEqual(doc.get_relation('mother'), ['GiamPaolo4'])
+        self.assertEqual(doc.get_relation('parent'), ['GiamPaolo5'])
+        
 def test_main():
     test_suite = unittest.TestSuite()
     tests = [BiodesTestCase]

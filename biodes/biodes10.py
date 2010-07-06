@@ -535,7 +535,7 @@ class BioDesDoc:
         if s:
             el = self.get_element_biography().find('text')
             if el is None:
-	            el = SubElement(self.get_element_biography(), 'text')
+                el = SubElement(self.get_element_biography(), 'text')
             el.text = s
         
         k = 'rechten'
@@ -901,6 +901,7 @@ class BioDesDoc:
         self._set_state_attributes(el, type, idno, text, frm, to, place, place_id)
         return el
 
+
     def add_or_update_state(self, type, idno=None, text=None, frm=None, to=None, place=None, place_id=None, idx=0):
         """if a state of type 'occupation' exist, it will update it
         otherwise, we add a new one"""
@@ -943,9 +944,63 @@ class BioDesDoc:
         el = els[idx]
         el.getparent().remove(el)
     
+    
+    def add_relation(self, person, name):
+        """add a person that stands in a type of relation with our person
+        
+            - person - a string
+            - name - one of ['marriage', 'father', 'mother', 'parent', 'child']
+        """
+        #
+        root_id = self.get_element_person().get('id')
+        if not root_id:
+            root_id = '#1'
+            self.get_element_person().set('id', root_id)
+        el = self.get_element_person()
+        el_person = SubElement(el, 'person') 
+        new_id = '#%s' % abs(hash('%s %s' % (person, name)))
+        el_person.set('id', new_id)
+        sex = None
+        if name in ['father']:
+            sex = '1'
+        elif name in [ 'mother']:
+            sex = '2'
+        if sex:
+            el_person.set('sex', sex)
+        el_relation = SubElement(el, 'relation')
+        if name in ['father', 'mother', 'parent']:
+            el_relation.set('name', 'parent') 
+            el_relation.set('passive', root_id)
+            el_relation.set('active', new_id)
+        elif name in ['child']:
+            el_relation.set('name', 'parent') 
+            el_relation.set('active', root_id)
+            el_relation.set('passive', new_id)
+        elif name in ['marriage']:
+            el_relation.set('name', 'marriage')
+            el_relation.set('mutual', '%s %s' % (root_id, new_id))
+            
+        print etree.tostring(el_person)
+        
+    def get_relation(self, name):
+        root_id = self.get_element_person().get('id')
+        if not root_id:
+            return []
+        relations = []
+        if name in ['father', 'mother', 'parent']:
+            relations = self.xpath('//relation[@name="parent", @passive="%s"]' % root_id)
+            
+        elif name in ['child']:
+            relations = self.xpath('//relation[@active="%s"]' % root_id)
+        elif name in ['marriage']:
+            relations = self.xpath('//relation[@name="marriage"]')
+            person_ids =  ' '.join([el.get('mutual') for el in relations]).split()
+            
+            return person_ids
+        return relations
     def _remove_illustrations(self): 
         for el in self.xpath('./biography/graphic'):
-	        el.getparent().remove(el)
+            el.getparent().remove(el)
             
     def _add_a_name(self,s, lang=None):
         """Add a name
@@ -1042,4 +1097,3 @@ def is_valid_document(s):
     #XXX implement this!
     return True
     
-
