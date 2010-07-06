@@ -945,11 +945,11 @@ class BioDesDoc:
         el.getparent().remove(el)
     
     
-    def add_relation(self, person, name):
+    def add_relation(self, person, relation):
         """add a person that stands in a type of relation with our person
         
             - person - a string
-            - name - one of ['marriage', 'father', 'mother', 'parent', 'child']
+            - relation - one of ['marriage', 'father', 'mother', 'parent', 'child']
         """
         #
         root_id = self.get_element_person().get('id')
@@ -958,41 +958,41 @@ class BioDesDoc:
             self.get_element_person().set('id', root_id)
         el = self.get_element_person()
         el_person = SubElement(el, 'person') 
-        new_id = '#%s' % abs(hash('%s %s' % (person, name)))
+        new_id = '#%s' % abs(hash('%s %s' % (person, relation)))
         el_person.set('id', new_id)
         sex = None
-        if name in ['father']:
+        if relation in ['father']:
             sex = '1'
-        elif name in [ 'mother']:
+        elif relation in [ 'mother']:
             sex = '2'
         if sex:
             el_person.set('sex', sex)
         el_relation = SubElement(el, 'relation')
-        if name in ['father', 'mother', 'parent']:
+        if relation in ['father', 'mother', 'parent']:
             el_relation.set('name', 'parent') 
             el_relation.set('passive', root_id)
             el_relation.set('active', new_id)
-        elif name in ['child']:
+        elif relation in ['child']:
             el_relation.set('name', 'parent') 
             el_relation.set('active', root_id)
             el_relation.set('passive', new_id)
-        elif name in ['marriage']:
+        elif relation in ['marriage']:
             el_relation.set('name', 'marriage')
             el_relation.set('mutual', '%s %s' % (root_id, new_id))
             
         print etree.tostring(el_person)
         
-    def get_relation(self, name):
+    def get_relation(self, relation):
         root_id = self.get_element_person().get('id')
         if not root_id:
             return []
         relations = []
-        if name in ['father', 'mother', 'parent']:
+        if relation in ['father', 'mother', 'parent']:
             relations = self.xpath('//relation[@name="parent", @passive="%s"]' % root_id)
             
-        elif name in ['child']:
+        elif relation in ['child']:
             relations = self.xpath('//relation[@active="%s"]' % root_id)
-        elif name in ['marriage']:
+        elif relation in ['marriage']:
             relations = self.xpath('//relation[@name="marriage"]')
             person_ids =  ' '.join([el.get('mutual') for el in relations]).split()
             
