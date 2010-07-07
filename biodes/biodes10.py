@@ -722,7 +722,10 @@ class BioDesDoc:
         
                 
     def _add_figure(self, url, head=''):
-        
+        try:
+	        assert self.is_url(url)
+        except:
+            raise Exception('Url should be a valid URL (you gave "%s")' % url)
         el_figure = SubElement(self.get_element_biography(), 'figure')
         if head:
             el_head = SubElement(el_figure, 'head')
