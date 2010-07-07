@@ -433,7 +433,7 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(doc.get_relation('father'), ['GiamPaolo3'])
         self.assertEqual(doc.get_relation('mother'), ['GiamPaolo4'])
         self.assertEqual(doc.get_relation('parent'), ['GiamPaolo5'])
-        
+
 def test_main():
     test_suite = unittest.TestSuite()
     tests = [BiodesTestCase]

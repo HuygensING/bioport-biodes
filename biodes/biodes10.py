@@ -979,8 +979,6 @@ class BioDesDoc:
         elif relation in ['marriage']:
             el_relation.set('name', 'marriage')
             el_relation.set('mutual', '%s %s' % (root_id, new_id))
-            
-        print etree.tostring(el_person)
         
     def get_relation(self, relation):
         root_id = self.get_element_person().get('id')
