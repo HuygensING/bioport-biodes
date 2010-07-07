@@ -960,6 +960,8 @@ class BioDesDoc:
         el_person = SubElement(el, 'person') 
         new_id = '#%s' % abs(hash('%s %s' % (person, relation)))
         el_person.set('id', new_id)
+        el_persName = SubElement(el_person, 'persName')
+        el_persName.text = person
         sex = None
         if relation in ['father']:
             sex = '1'
@@ -985,17 +987,31 @@ class BioDesDoc:
         if not root_id:
             return []
         relations = []
+        sex = None
+        if relation in ['father']:
+            sex = '1'
+        elif relation in ['mother']:
+            sex = '2'
         if relation in ['father', 'mother', 'parent']:
-            relations = self.xpath('//relation[@name="parent", @passive="%s"]' % root_id)
-            
+            relations = self.xpath('//relation[@name="parent"][@passive="%s"]' % root_id)
+            person_ids =  ' '.join([el.get('active') for el in relations]).split()
         elif relation in ['child']:
-            relations = self.xpath('//relation[@active="%s"]' % root_id)
+            relations = self.xpath('//relation[@name="parent"][@active="%s"]' % root_id)
+            person_ids =  ' '.join([el.get('passive') for el in relations]).split()
         elif relation in ['marriage']:
             relations = self.xpath('//relation[@name="marriage"]')
             person_ids =  ' '.join([el.get('mutual') for el in relations]).split()
-            
-            return person_ids
-        return relations
+        persons = [self._get_person_by_id(person_id) for person_id in person_ids if person_id != '#1']
+        if sex:
+            persons = [el for el in persons if el.get('sex') == sex]
+        return [el[0].text for el in persons]
+    
+    def _get_person_by_id(self, person_id):
+        qry = '//person[@id="%s"]' % person_id
+        ls = self.xpath(qry)
+        if ls:
+            assert len(ls) == 1
+            return ls[0]
     def _remove_illustrations(self): 
         for el in self.xpath('./biography/graphic'):
             el.getparent().remove(el)
