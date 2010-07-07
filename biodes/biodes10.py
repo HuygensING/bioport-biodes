@@ -242,7 +242,7 @@ class BioDesDoc:
             
         for k in args.keys():
             if k not in self.possible_arguments:
-                raise ValueError('"%s" is not a valid argument; valid arguments are: ' 
+                raise ValueError('"%s" is not a valid argument; valid arguments are: %s' 
                                  % (k, self.possible_arguments))
         #set up basic structure
             self.element_filedesc = filedesc
