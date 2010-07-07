@@ -951,7 +951,9 @@ class BioDesDoc:
             - person - a string
             - relation - one of ['partner', 'father', 'mother', 'parent', 'child']
         """
-        #
+        possible_relations = ['partner', 'father', 'mother', 'parent', 'child']
+        if relation not in possible_relations:
+            raise ValueError('The "relation" argument must be one of %s' % possible_relations)
         root_id = self.get_element_person().get('id')
         if not root_id:
             root_id = '#1'

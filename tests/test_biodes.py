@@ -436,6 +436,8 @@ class BiodesTestCase(unittest.TestCase):
 
         #make sure we are not reading the other names
         self.assertEqual(len(doc.get_names()), 1)
+        
+        self.assertRaises(ValueError, doc.add_relation, person='x', relation='xxx')
 def test_main():
     test_suite = unittest.TestSuite()
     tests = [BiodesTestCase]
