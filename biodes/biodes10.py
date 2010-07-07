@@ -235,14 +235,15 @@ class BioDesDoc:
         filedesc = self.get_element_filedesc()
         for k in self._mandatory_arguments:
             if k not in args:
-                raise Exception('"%s" is a mandatory argument' % k)
+                raise ValueError('"%s" is a mandatory argument' % k)
             
         if not args.get('naam') and not args.get('geslachtsnaam' ) and not args.get('namen') and not args.get('names'):
-                raise Exception('provide either a "naam", "name", "names" or "namen" argument' )
+                raise ValueError('provide either a "naam", "name", "names" or "namen" argument' )
             
         for k in args.keys():
             if k not in self.possible_arguments:
-                raise BDException('Dit is niet een geldig argument: %s.\nGeldige argumenten zijn: %s' % (k, self.possible_arguments))
+                raise ValueError('"%s" is not a valid argument; valid arguments are: ' 
+                                 % (k, self.possible_arguments))
         #set up basic structure
             self.element_filedesc = filedesc
         #INFO OVER BIOGRAFIE
@@ -255,7 +256,8 @@ class BioDesDoc:
     
     def get_value(self, k, default=None):
         if k not in self.possible_arguments:
-            raise BDException('Dit is niet een geldig argument: %s.\nGeldige argumenten zijn: %s' % (k, self.possible_arguments))
+            raise ValueError('"%s" is not a valid argument; choose one of the followings: ' 
+                             % (k, self.possible_arguments))
         if k == 'namen':
             return self.get_namen()
  
@@ -273,7 +275,7 @@ class BioDesDoc:
                 elif type == 'list':
                     return [unicode(s) for s in found_items]
                 else:
-                    raise 'unknown type %s' % type
+                    raise TypeError('unknown type %s' % type)
             return default
         return self.to_dict().get(k, default)
 
@@ -281,7 +283,8 @@ class BioDesDoc:
         """
         """
         if k and k not in self.possible_arguments:
-            raise BDException('This is not a valid argument: %s.\nValid arguments are: %s' % (k, self.possible_arguments))
+            raise ValueError('This is not a valid argument: %s.\nValid arguments are: %s' 
+                              % (k, self.possible_arguments))
         if k:
             args[k]=v
         filedesc = self.get_root().find('fileDesc')
@@ -322,7 +325,7 @@ class BioDesDoc:
         s = args.get(k, args.get(_translate(k)))
         if s is not None:
             if not self.is_url(s):
-                raise Exception('The value for %s is not a url (but %s)' % (k, s))
+                raise ValueError('The value for %s is not a url (but %s)' % (k, s))
             el = self.get_root().find('fileDesc/ref')
             if el is None:
                 el = SubElement(filedesc, 'ref')
@@ -335,7 +338,7 @@ class BioDesDoc:
         s = args.get(k, args.get(_translate(k)))
         if s:
             if not is_date(s):
-                raise Exception('The value for %s must be of the form yyyy-mm-dd (e.g. 2008-02-03. (got %s instead)' % (k, s))
+                raise ValueError('The value for %s must be of the form yyyy-mm-dd (e.g. 2008-02-03. (got %s instead)' % (k, s))
             SubElement(filedesc, 'date').set('when', s)
 
         #laatst veranderd datum van de biografie
@@ -343,7 +346,7 @@ class BioDesDoc:
         s = args.get(k, args.get(_translate(k)))
         if s:
             if not is_date(s):
-                raise Exception('The value for %s is not a date (but %s)' % (k, s))
+                raise ValueError('The value for %s is not a date (but %s)' % (k, s))
             revisiondesc = SubElement(filedesc, 'revisionDesc')
             SubElement(revisiondesc, 'changed').set('when', s)
 
@@ -367,7 +370,7 @@ class BioDesDoc:
         s = args.get(k, args.get(_translate(k)))
         if s is not None:
             if s and not self.is_url(s):
-                raise Exception('The value for %s is not a url' % (k, s))
+                raise ValueError('The value for %s is not a url' % (k, s))
             el =  publisher.find('ref') 
             if el is None:
                 el = SubElement(publisher, 'ref')
@@ -410,12 +413,14 @@ class BioDesDoc:
                 if naam and k == 'geslachtsnaam':
                     naam = persname.text
                     if not s in naam:
+                        # XXX - needs translation
                         raise BDException('U heeft zowel een "naam" als een "%s" gegeven. In dat geval moet de %s onderdeel zijn van de naam. Dat is niet het geval' % (k,k)) 
                     i = naam.find(s)
                     persname.text = naam[:i]
                     el = SubElement(persname, 'name')
                     el.tail = naam[i+len(s):] 
                 elif naam:
+                    # XXX - needs translation
                     raise BDException('U heeft zowel een "naam" als een "%s" gegeven, en dat mag niet')
                 else:
                     if persname is None:
@@ -425,7 +430,7 @@ class BioDesDoc:
                 try:
                     el.text = s
                 except:
-                    raise Exception(' This value for %s? %s' % (k,s))
+                    raise ValueError(' This value for %s? %s' % (k,s))
                 el.set('type', k)
                 i += 1 
 
@@ -605,7 +610,7 @@ class BioDesDoc:
                 elif type == 'list':
                     result[k] = [unicode(s) for s in found_items]
                 else:
-                    raise 'unknown type %s' % type
+                    raise TypeError('unknown type %s' % type)
 
         #namen is a special case
         result['namen'] = self.get_namen()
@@ -712,7 +717,7 @@ class BioDesDoc:
         if ls:
             for s in ls:
                 if not self.is_url(s):
-                    raise Exception('The value for %s is not a url (but %s)' % (k, s))
+                    raise ValueError('The value for %s is not a url (but %s)' % (k, s))
                 self._add_figure(url=s)
         
                 
@@ -851,7 +856,7 @@ class BioDesDoc:
                 del el.attrib['when']
         elif when:
             if not is_date(when):
-                raise Exception('The value for event of type %s is not a date (but %s)' % (type, when))
+                raise ValueError('The value for event of type %s is not a date (but %s)' % (type, when))
             el.set('when', when)
             
             
@@ -860,7 +865,7 @@ class BioDesDoc:
                 del el.attrib['notBefore']
         elif notBefore:
             if not is_date(notBefore):
-                raise Exception('The value for notBefore for event of type %s is not a date (but %s)' % (type, notBefore))
+                raise ValueError('The value for notBefore for event of type %s is not a date (but %s)' % (type, notBefore))
             el.set('notBefore', notBefore)
             
         if notAfter == '':
@@ -868,7 +873,7 @@ class BioDesDoc:
                 del el.attrib['notAfter']
         elif notAfter:
             if not is_date(notAfter):
-                raise Exception('The value for notAfter for event of type %s is not a date (but "%s")' % (type, notAfter))
+                raise ValueError('The value for notAfter for event of type %s is not a date (but "%s")' % (type, notAfter))
             el.set('notAfter', notAfter)
 
 
@@ -1112,4 +1117,4 @@ def is_valid_document(s):
     """return true if this document is a valid BioDes document"""
     #XXX implement this!
     return True
-    
+
