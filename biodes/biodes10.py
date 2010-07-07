@@ -949,7 +949,7 @@ class BioDesDoc:
         """add a person that stands in a type of relation with our person
         
             - person - a string
-            - relation - one of ['marriage', 'father', 'mother', 'parent', 'child']
+            - relation - one of ['partner', 'father', 'mother', 'parent', 'child']
         """
         #
         root_id = self.get_element_person().get('id')
@@ -978,8 +978,8 @@ class BioDesDoc:
             el_relation.set('name', 'parent') 
             el_relation.set('active', root_id)
             el_relation.set('passive', new_id)
-        elif relation in ['marriage']:
-            el_relation.set('name', 'marriage')
+        elif relation in ['partner']:
+            el_relation.set('name', 'partner')
             el_relation.set('mutual', '%s %s' % (root_id, new_id))
         
     def get_relation(self, relation):
@@ -998,8 +998,8 @@ class BioDesDoc:
         elif relation in ['child']:
             relations = self.xpath('//relation[@name="parent"][@active="%s"]' % root_id)
             person_ids =  ' '.join([el.get('passive') for el in relations]).split()
-        elif relation in ['marriage']:
-            relations = self.xpath('//relation[@name="marriage"]')
+        elif relation in ['partner']:
+            relations = self.xpath('//relation[@name="partner"]')
             person_ids =  ' '.join([el.get('mutual') for el in relations]).split()
         persons = [self._get_person_by_id(person_id) for person_id in person_ids if person_id != '#1']
         if sex:

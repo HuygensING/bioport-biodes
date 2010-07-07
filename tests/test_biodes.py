@@ -422,13 +422,13 @@ class BiodesTestCase(unittest.TestCase):
 
     def test_family(self):
         doc = BioDesDoc().from_xml(self.create_element())
-        doc.add_relation(person="GiamPaolo1", relation="marriage")
+        doc.add_relation(person="GiamPaolo1", relation="partner")
         doc.add_relation(person="GiamPaolo2", relation="child")
         doc.add_relation(person="GiamPaolo3", relation="father")
         doc.add_relation(person="GiamPaolo4", relation="mother")
         doc.add_relation(person="GiamPaolo5", relation="parent")
         
-        self.assertEqual(doc.get_relation('marriage'), ['GiamPaolo1'])
+        self.assertEqual(doc.get_relation('partner'), ['GiamPaolo1'])
         self.assertEqual(doc.get_relation('child'), ['GiamPaolo2'])
         self.assertEqual(doc.get_relation('father'), ['GiamPaolo3'])
         self.assertEqual(doc.get_relation('mother'), ['GiamPaolo4'])
