@@ -256,9 +256,9 @@ class BioDesDoc:
     
     def get_value(self, k, default=None):
         if k not in self.possible_arguments:
-            raise ValueError('"%s" is not a valid argument; choose one of the followings: ' 
+            raise ValueError('"%s" is not a valid argument; choose one of the following: %s' 
                              % (k, self.possible_arguments))
-        if k == 'namen':
+        if k in ('namen', _translate('namen')):
             return self.get_namen()
  
         if k in self._key_mapping:
