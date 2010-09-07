@@ -1,4 +1,10 @@
 import types
+import tempfile
+import atexit
+import tarfile
+import shutil
+import os
+import logging
 
 from lxml import etree
 from lxml.etree import Element, SubElement, XMLSyntaxError
@@ -1083,14 +1089,46 @@ create_xml = create_biodes_document
 def parse_list(url):
     """get the list of biodes documents from the url
 
-    return a list of urls to biodes documents"""
+    return a list of urls to biodes documents
+    """
     #XXX USE biodes_list.BiodesList instead
-    parser = etree.XMLParser(no_network=False)
-    root = etree.parse(url, parser )
-    result = []
-    for n in root.xpath('//a'):
-        result.append(n.get('href'))
-    return result
+    if url.endswith('xml'):
+        parser = etree.XMLParser(no_network=False)
+        root = etree.parse(url, parser )
+        result = []
+        for n in root.xpath('//a'):
+            result.append(n.get('href'))
+        return result
+    elif url.endswith('tar.gz'):
+        from gerbrandyutils import sh
+
+        def cleanup(tempdir):
+            logging.info("Removing tempdir used for sources import %s" %tempdir)
+            if os.path.isdir(tempdir):
+                shutil.rmtree(tempdir)
+
+        archive = os.path.basename(url)
+        tempdir = tempfile.mkdtemp(prefix="bioport_")
+        atexit.register(cleanup, tempdir)
+        
+        # XXX - replace this user
+        sh("wget %s --user=%s --password=%s" % (url, 'giampaolo', 'N@p0li'))
+        try:
+            tar = tarfile.open(archive)
+            tar.extractall(tempdir)
+            tar.close()
+        finally:
+            # move the archive to temp dir so that it gets deleted later
+            shutil.move(archive, tempdir)
+
+        ls = []
+        for name in os.listdir(tempdir):
+            fullname = os.path.join(tempdir, name)
+            print fullname
+            ls.append(fullname)
+        return ls
+    else:
+        ValueError("don't know what to do with url %s" % url)
 
 def parse_document(url=None, document=None):
     """parse the xml file found at the url
