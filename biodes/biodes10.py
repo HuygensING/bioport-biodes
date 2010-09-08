@@ -1124,8 +1124,8 @@ def parse_list(url):
         ls = []
         for name in os.listdir(tempdir):
             fullname = os.path.join(tempdir, name)
-            print fullname
-            ls.append(fullname)
+            if fullname.endswith('.xml'):
+                ls.append(fullname)
         return ls
     else:
         ValueError("don't know what to do with url %s" % url)
