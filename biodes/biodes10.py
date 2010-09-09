@@ -1092,14 +1092,8 @@ def parse_list(url):
     return a list of urls to biodes documents
     """
     #XXX USE biodes_list.BiodesList instead
-    if url.endswith('xml'):
-        parser = etree.XMLParser(no_network=False)
-        root = etree.parse(url, parser )
-        result = []
-        for n in root.xpath('//a'):
-            result.append(n.get('href'))
-        return result
-    elif url.endswith('tar.gz'):
+    if url.endswith('tar.gz'):
+        """we expect an archive containing biodes XML files"""
         from gerbrandyutils import sh
 
         def cleanup(tempdir):
@@ -1128,7 +1122,13 @@ def parse_list(url):
                 ls.append(fullname)
         return ls
     else:
-        ValueError("don't know what to do with url %s" % url)
+        """we expect an XML file"""
+        parser = etree.XMLParser(no_network=False)
+        root = etree.parse(url, parser )
+        result = []
+        for n in root.xpath('//a'):
+            result.append(n.get('href'))
+        return result
 
 def parse_document(url=None, document=None):
     """parse the xml file found at the url
