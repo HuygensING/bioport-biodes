@@ -15,6 +15,7 @@ from names.name import Naam
     
 NAAM_TYPEN =  ['prepositie', 'voornaam', 'intrapositie', 'geslachtsnaam', 'postpositie']
 
+#arguments can be passed both in Dutch as in English
 TRANSLATIONS = {
 #       'bioport_id',
 #        'local_id',
@@ -275,7 +276,7 @@ class BioDesDoc:
             found_items = el.xpath(path)
             if found_items:
                 if type in ['string', 'date']:
-                    if k == 'tekst':
+                    if k in ['tekst', 'text']:
                         return unescape(found_items[0])
                     return found_items[0]
                 elif type == 'list':
@@ -1105,7 +1106,7 @@ def parse_list(url):
         tempdir = tempfile.mkdtemp(prefix="bioport_")
         atexit.register(cleanup, tempdir)
         
-        # XXX - replace this user
+        # XXX - specifiy user and password in the url -argument (i.e. giampoalo:N@poli@http://xxxxxxx) 
         sh("wget %s --user=%s --password=%s" % (url, 'giampaolo', 'N@p0li'))
         try:
             tar = tarfile.open(archive)

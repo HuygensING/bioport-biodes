@@ -171,8 +171,8 @@ class BiodesTestCase(unittest.TestCase):
     def test_parse_document(self):
         url = "biodes02_example.xml"
         url = os.path.join(this_dir, url)
-        parse_document(url)
-
+        doc = parse_document(url)
+        
     def test_analyze_element(self):
 
         def test_round_trip(k, o, **dict):

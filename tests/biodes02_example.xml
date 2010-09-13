@@ -20,4 +20,16 @@
 <occupation>diplomaat</occupation>
 <occupation>nog een beroep</occupation>
 </person>
+  <biography> 
+    <graphic url="http://www.inghist.nl/Onderzoek/Projecten/BWN/lemmata/bwn1/images/images/AA.jpg"/> 
+    <text>&amp;lt;dtml-var bwn_header&amp;gt;
+ &amp;lt;p class='genealogie'&amp;gt;
+  &amp;lt;strong&amp;gt;Aa, Jan Simon van der&amp;lt;/strong&amp;gt;, jurist 
+(Hornhuizen (gem. Kloosterburen) 25-7-1865 - Vennes sur Lausanne (Zw.) 24-2-1944). Zoon van Pieter Jan Baptist Karel Simon van der Aa, predikant, en
+Christina Maria Catharina Sinninghe Damst&amp;amp;eacute;. Gehuwd met Christiane
+Hansine Gottholdine von Sch&amp;amp;ouml;ller op 29-6-1893. Na haar overlijden
+op 10-11-1918 gehuwd met Anna Judith Tellegen op 11-4-1927. Uit het
+eerste huwelijk werden 2 dochters geboren. 
+	</text>
+  </biography>
 </biodes>
