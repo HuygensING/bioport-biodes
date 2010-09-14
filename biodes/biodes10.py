@@ -477,7 +477,10 @@ class BioDesDoc:
         if s is not None:
             if not s: 
                 s = ''
-            assert s in ['', 0, '0', 1, '1', 2, '2'], BDTypeError('Het argument %s moet een van de volgende waarden hebben: 0, 1 of 2 (voor, respectievelijk: onbekend, man, en vrouw)' % k)
+            if s not in ['', 0, '0', 1, '1', 2, '2']:
+                msg = "sex value must be 0 (unknown), 1 (male) or 2 (female). Got: %s instead" % repr(k)
+                raise ValueError(msg)
+                
             s = str(s)
             els = self.xpath('./person/sex')
             if len(els):
