@@ -657,11 +657,10 @@ class BioDesDoc:
 
     #simple type checking
     def is_url(self, s):
-        if s.startswith('http:'):
+        if s.startswith('http:') or s.startswith('file:'):
             return 1
         else:  
             return 0
-
 
     def is_list(self, s):
         return type(s) == type([])
@@ -675,8 +674,6 @@ class BioDesDoc:
         if with_tail and n.tail:
             result += n.tail.replace('\n', ' ')
         return result
-
-
 
     def xpath(self, s):
         return self.get_root().xpath(s)
