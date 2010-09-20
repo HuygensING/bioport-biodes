@@ -10,7 +10,7 @@ from lxml import etree
 from lxml.etree import Element, SubElement, XMLSyntaxError
 from xml.sax.saxutils import unescape
 
-from names.name import Naam
+from names import Naam
 
     
 NAAM_TYPEN =  ['prepositie', 'voornaam', 'intrapositie', 'geslachtsnaam', 'postpositie']
