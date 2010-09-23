@@ -1106,9 +1106,17 @@ def parse_list(url):
         tempdir = tempfile.mkdtemp(prefix="bioport_")
         atexit.register(cleanup, tempdir)
         
-        # XXX - specifiy user and password in the url -argument (i.e. giampoalo:N@poli@http://xxxxxxx) 
-        sh("wget %s --user=%s --password=%s" % (url, 'giampaolo', 'N@p0li'))
-        try:
+        # XXX - specifiy user and password in the url -argument 
+        # (i.e. giampoalo:N@poli@http://xxxxxxx) 
+        import pdb; pdb.set_trace()
+        if url.startswith('http'):
+            sh("wget %s --user=%s --password=%s" % (url, 'giampaolo', 'N@p0li'))
+        elif url.startswith('file://'):
+            _file = url.replace('file://', '')
+            shutil.copy(_file, '.')
+        else:
+            raise ValueError("don't know what to do with url %s" % url)
+        try: 
             tar = tarfile.open(archive)
             tar.extractall(tempdir)
             tar.close()
