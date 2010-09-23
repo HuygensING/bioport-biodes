@@ -1108,7 +1108,6 @@ def parse_list(url):
         
         # XXX - specifiy user and password in the url -argument 
         # (i.e. giampoalo:N@poli@http://xxxxxxx) 
-        import pdb; pdb.set_trace()
         if url.startswith('http'):
             sh("wget %s --user=%s --password=%s" % (url, 'giampaolo', 'N@p0li'))
         elif url.startswith('file://'):
