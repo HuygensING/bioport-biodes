@@ -587,6 +587,7 @@ class BioDesDoc:
         else:
             ls = self.xpath('person/idno')
         return [n.text for n in ls]
+    
     def to_string(self):
         if self.get_root() is None:
             return ''

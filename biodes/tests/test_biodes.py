@@ -3,12 +3,9 @@
 import sys
 import os
 import unittest
-
 from  biodes import *
 
-
 this_dir = os.path.dirname(__file__)
-
 
 class BiodesTestCase(unittest.TestCase):
     kw = {
