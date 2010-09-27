@@ -830,7 +830,7 @@ class BioDesDoc:
         if els:
             if len(els) != 1:
                 raise ValueError("There are %s events of type %s found -- " \
-                                 "expected at most one" % (len(els), type)
+                                 "expected at most one" % (len(els), type))
             return els[0]
         
     def get_states(self, type=None):
@@ -848,7 +848,7 @@ class BioDesDoc:
         if els:        
             if len(els) != 1:
                 raise ValueError("There are %s states of type %s found -- " \
-                                 "expected at most one" % (len(els), type)
+                                 "expected at most one" % (len(els), type))
             return els[0]
         
     def add_or_update_event(self, type, text=None, when=None, place=None, 
@@ -887,7 +887,7 @@ class BioDesDoc:
                 del el.attrib['when']
         elif when:
             if not is_date(when):
-                msg = 'The value for event of type %s is not a date (but %s)' 
+                msg = 'The value for event of type %s is not a date (but %s)' \
                        % (type, when)
                 raise ValueError(msg)
             el.set('when', when)
