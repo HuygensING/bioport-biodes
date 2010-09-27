@@ -139,10 +139,6 @@ class BiodesTestCase(unittest.TestCase):
         
          
     def test_type_checking(self):
-        #url
-        def is_url(s):
-            return BioDesDoc().is_url(s)
-
         self.assertTrue(is_url('http://www.inghist.nl'))
         self.assertFalse(is_url('xhttp://www.inghist.nl'))
 
