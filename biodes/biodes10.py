@@ -85,6 +85,12 @@ def is_date(s):
 
     return False
 
+def is_url(s):
+    if s.startswith('http:') or s.startswith('file:'):
+        return True
+    else:  
+        return False
+
 
 class BioDesDoc:
     """
@@ -184,11 +190,9 @@ class BioDesDoc:
     
     
         
-
-
-
     def __str__(self):
         return '<BioDesDoc version %s>' % self.__version__
+
     def __repr__(self):
         return self.__str__()
 
@@ -237,14 +241,19 @@ class BioDesDoc:
         return self.root.find('fileDesc')
     
     def from_args(self, **args):
-        """create an xml file in the biodes format with content from the given arguments"""
+        """create an xml file in the biodes format with content from the 
+        given arguments
+        """
         self._set_up_basic_structure()
         filedesc = self.get_element_filedesc()
         for k in self._mandatory_arguments:
             if k not in args:
                 raise ValueError('"%s" is a mandatory argument' % k)
             
-        if not args.get('naam') and not args.get('geslachtsnaam' ) and not args.get('namen') and not args.get('names'):
+        if not args.get('naam') \
+        and not args.get('geslachtsnaam' ) \
+        and not args.get('namen') \
+        and not args.get('names'):
                 raise ValueError('provide either a "naam", "name", "names" or "namen" argument' )
             
         for k in args.keys():
@@ -331,7 +340,7 @@ class BioDesDoc:
         k = 'url_biografie'
         s = args.get(k, args.get(_translate(k)))
         if s is not None:
-            if not self.is_url(s):
+            if not is_url(s):
                 raise ValueError('The value for %s is not a url (but %s)' % (k, s))
             el = self.get_root().find('fileDesc/ref')
             if el is None:
@@ -376,7 +385,7 @@ class BioDesDoc:
         k = 'url_publisher'
         s = args.get(k, args.get(_translate(k)))
         if s is not None:
-            if s and not self.is_url(s):
+            if s and not is_url(s):
                 raise ValueError('The value for %s is not a url' % (k, s))
             el =  publisher.find('ref') 
             if el is None:
@@ -555,10 +564,8 @@ class BioDesDoc:
         
         k = 'rechten'
         s = args.get(k, args.get(_translate(k)))
-        self._add_rights(s)
-        
+        self._add_rights(s)        
         self._add_meta(args.get('meta')) 
-
         
     def set_idno(self, s, type):
     
@@ -578,8 +585,6 @@ class BioDesDoc:
             return ls[-1]
         else:
             return None 
-#        assert len(ls) >= 1, 'There is no "idno" element of type %s (instead we found: %s)' % (type, [n.get('type') for n in self.xpath('person/idno')])
-#        return ls[-1]
         
     def get_idnos(self, type='id'):
         if type:
@@ -601,11 +606,14 @@ class BioDesDoc:
         return self.root
     
     def to_dict(self):
-        """returns a dictionary with (most of) the data contained  in this Biodes docuemnt structured in dictionary format
+        """returns a dictionary with (most of) the data contained  in this 
+        Biodes docuemnt structured in dictionary format
         
-        (WARNING: the information returned can be incomplete (that is, not all information from the originel XML structure 
-        finds its way into the dictionary). The XML source (self.root) remains the uathoratative source.
-         """
+        (WARNING: the information returned can be incomplete (that is, 
+        not all information from the originel XML structure  finds its way
+        into the dictionary). The XML source (self.root) remains the 
+        uathoratative source.
+        """
         keys = self._keys
         result = {}
         el = self.get_root()
@@ -656,13 +664,6 @@ class BioDesDoc:
 #        
 #                result['namen'].append(tuple( [naam.strip()] + [d[type] for type in NAAM_TYPEN] + [self.normalize_name(n)]))
 
-    #simple type checking
-    def is_url(self, s):
-        if s.startswith('http:') or s.startswith('file:'):
-            return 1
-        else:  
-            return 0
-
     def is_list(self, s):
         return type(s) == type([])
 
@@ -691,7 +692,10 @@ class BioDesDoc:
     get_namen = get_names
     
     def normalize_name(self, el):
-        """gegeven een name element, probeer het in de volgorde achternaam, prepo voornaam intra, postpo te zetten"""
+        # XXX - translate this
+        """gegeven een name element, probeer het in de volgorde achternaam, 
+        prepo voornaam intra, postpo te zetten
+        """
         n = Naam().from_xml(el)
         return n.guess_normal_form()
 
@@ -724,14 +728,14 @@ class BioDesDoc:
             ls = [ls]
         if ls:
             for s in ls:
-                if not self.is_url(s):
+                if not is_url(s):
                     raise ValueError('The value for %s is not a url (but %s)' % (k, s))
                 self._add_figure(url=s)
         
                 
     def _add_figure(self, url, head=''):
         try:
-	        assert self.is_url(url)
+	        assert is_url(url)
         except:
             raise Exception('Url should be a valid URL (you gave "%s")' % url)
         el_figure = SubElement(self.get_element_biography(), 'figure')
@@ -741,7 +745,9 @@ class BioDesDoc:
         SubElement(el_figure, 'graphic').set('url', url)
 
     def get_figures(self):
-        #there are two ways in which figures can be encoded - either in plain 'graphic' tags immediately in the biography element, or within a 'figure' element
+        # there are two ways in which figures can be encoded - either in plain 
+        # 'graphic' tags immediately in the biography element, or within a
+        # 'figure' element
         if self.get_element_biography() is None:
             return []
         urls = self.get_element_biography().xpath('./graphic')
@@ -808,6 +814,7 @@ class BioDesDoc:
 #            else:
 #                self.element_biography = SubElement(self.root, 'biography')
 #        return self.element_biography
+
     def get_events(self, type=None):
         if self.get_root() is None:
             return []
@@ -821,7 +828,9 @@ class BioDesDoc:
         """return the first event Element of type type"""
         els = self.get_events(type)
         if els:
-            assert len(els) == 1, "There are %s events of type %s found -- expected at most one" % (len(els), type)
+            if len(els) != 1:
+                raise ValueError("There are %s events of type %s found -- " \
+                                 "expected at most one" % (len(els), type)
             return els[0]
         
     def get_states(self, type=None):
@@ -836,40 +845,52 @@ class BioDesDoc:
     def get_state(self, type):
         """return the first 'state' element of type type"""
         els = self.get_states(type)
-        if els:
-            assert len(els) == 1, "There are %s states of type %s found -- expected at most one" % (len(els), type)
+        if els:        
+            if len(els) != 1:
+                raise ValueError("There are %s states of type %s found -- " \
+                                 "expected at most one" % (len(els), type)
             return els[0]
         
-    def add_or_update_event(self, type, text=None, when=None, place=None, place_id=None, date_text=None, notBefore=None, notAfter=None):
+    def add_or_update_event(self, type, text=None, when=None, place=None, 
+                            place_id=None, date_text=None, notBefore=None, 
+                            notAfter=None):
         els = self.get_events(type) 
         if els:
             el = els[0]
         else:
             el_person = self.get_root().find('person')
             el = SubElement(el_person, 'event')
-        self._set_event_properties(el, type=type, text=text, when=when, place=place, place_id=place_id, date_text=date_text, notBefore=notBefore, notAfter=notAfter)
+        self._set_event_properties(el, type=type, text=text, when=when, place=place, 
+                                   place_id=place_id, date_text=date_text, 
+                                   notBefore=notBefore, notAfter=notAfter)
     
-    def _add_event(self, type, text=None, when=None, place=None,place_id=None, date_text=None,notBefore=None, notAfter=None):
+    def _add_event(self, type, text=None, when=None, place=None,place_id=None, 
+                   date_text=None,notBefore=None, notAfter=None):
         #geboortedatum
         el_person = self.get_root().find('person')
         el = SubElement(el_person, 'event')
-        self._set_event_properties(el, text=text, type=type, when=when, place=place,place_id=place_id,  date_text=date_text, notBefore=notBefore, notAfter=notAfter)
+        self._set_event_properties(el, text=text, type=type, when=when, 
+                                   place=place,place_id=place_id,  
+                                   date_text=date_text, notBefore=notBefore, 
+                                   notAfter=notAfter)
 
     def _add_event_element(self, el):
         el_person = self.get_root().find('person')
         el_person.append(el)
         return el
         
-    def _set_event_properties(self, el, text, type, when, place, place_id, date_text, notBefore, notAfter):
+    def _set_event_properties(self, el, text, type, when, place, place_id, 
+                                    date_text, notBefore, notAfter):
         el.set('type', type)
         if when == '':
             if 'when' in el.attrib:
                 del el.attrib['when']
         elif when:
             if not is_date(when):
-                raise ValueError('The value for event of type %s is not a date (but %s)' % (type, when))
+                msg = 'The value for event of type %s is not a date (but %s)' 
+                       % (type, when)
+                raise ValueError(msg)
             el.set('when', when)
-            
             
         if notBefore == '':
             if 'notBefore' in el.attrib:
@@ -1144,9 +1165,11 @@ def parse_document(url=None, document=None):
    
     return a dictionary with data found in the biodes document at the given url 
     
-    NOTE: that not all information in the document ends up in the dictionary (the biodes format is richer than its representation as a dictionary). 
+    NOTE: that not all information in the document ends up in the dictionary 
+    (the biodes format is richer than its representation as a dictionary). 
 
-    raise an error if the xml file is not of the right type"""
+    raise an error if the xml file is not of the right type
+    """
 
     biodesdoc = BioDesDoc()
     if url:
