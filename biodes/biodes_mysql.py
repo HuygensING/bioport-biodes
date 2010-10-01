@@ -121,9 +121,9 @@ class BioDesDocMySQL(BioDesDoc):
                 d.get('geslacht', None),
                 biodes_id,
                 ))
-        except:
+        except Exception, e:
             print 'Something went wroing trying to update this bio:\n %s\n%s\n' % (d, biodes_document)
-            raise
+            raise e
 
         self.mysql_biografie_id = id
         self.update_auteurs( d.get('auteur'))
