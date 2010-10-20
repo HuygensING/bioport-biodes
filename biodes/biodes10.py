@@ -10,17 +10,16 @@ from lxml import etree
 from lxml.etree import Element, SubElement, XMLSyntaxError
 from xml.sax.saxutils import unescape
 
-from names import Naam
+from names import Name
 
-    
-NAAM_TYPEN =  ['prepositie', 'voornaam', 'intrapositie', 'geslachtsnaam', 'postpositie']
+NAAM_TYPEN = ['prepositie', 'voornaam', 'intrapositie', 'geslachtsnaam', 'postpositie']
 
 #arguments can be passed both in Dutch as in English
 TRANSLATIONS = {
 #       'bioport_id',
 #        'local_id',
         'titel_biografie': 'title_biography',
-        'naam':'name',
+        'naam': 'name',
         'auteur': 'author',
         'beroep': 'occupation',
         'laatst_veranderd': 'last_changed',
@@ -36,9 +35,9 @@ TRANSLATIONS = {
 #        'figures', #a list of pairs of strings ('URL', 'caption')
         'namen':'names',
         'namen_en':'names_en',
-        'tekst':'text', #text of the biography
+        'tekst': 'text', #text of the biography
         'rechten':'rights',
-#        'meta', #any information that is not strictly part of the biographical info, but useful for the system         
+#        'meta', #any information that is not strictly part of the biographical info, but useful for the system
         'naam_publisher':'name_publisher',
         'url_biografie':'url_biography',
 #        'url_publisher':'url_publisher',
@@ -51,14 +50,11 @@ class BDException(Exception):
 class BDTypeError(BDException):
     pass
 
-       
-
 def _translate(k):
     return TRANSLATIONS.get(k)
 
 def is_date(s):
     #dates are of the form yyyy-mm-dd
-    is_date = True
     if not s:
         return 0
     if s.startswith('-'):
@@ -79,8 +75,8 @@ def is_date(s):
     else: 
         return False
     
-    if y.isdigit() and m.isdigit() and d.isdigit() and len(y) == 4 and len(m) == 2 \
-        and len(d)  == 2 and int(m) > 0 and int(m) < 13 and int(d) > 0 and int(d) < 32: # and int(y) < 2100:
+    if (y.isdigit() and m.isdigit() and d.isdigit() and len(y) == 4 and len(m) == 2 
+        and len(d)  == 2 and int(m) > 0 and int(m) < 13 and int(d) > 0 and int(d) < 32): # and int(y) < 2100:
         return True
 
     return False
@@ -202,7 +198,7 @@ class BioDesDoc:
     def from_element(self, element):
         """Create a BioDesDoc from an lxml.Element"""
         
-        self.root =element
+        self.root = element
         return self
     from_xml = from_element
     
@@ -228,7 +224,7 @@ class BioDesDoc:
         """
         try:
             parser = etree.XMLParser(no_network=False) 
-            self.root = etree.parse(url, parser )
+            self.root = etree.parse(url, parser)
         except XMLSyntaxError, error:
 #            print 'Error parsing %s' % url
             raise error
@@ -367,7 +363,7 @@ class BioDesDoc:
             SubElement(revisiondesc, 'changed').set('when', s)
 
 
-    #INFO OVER PUBLISHER
+	    #INFO ABOUT PUBLISHER
         publisher = self.get_root().find('fileDesc/publisher') 
         if publisher is None:
             publisher = SubElement(filedesc, 'publisher')
@@ -416,10 +412,13 @@ class BioDesDoc:
         s = args.get(k, args.get(_translate(k)))
         if s is None:
             persname = None
+        elif isinstance(s, Name):
+            persName = s.to_xml()
+            person.append(persName)
         else:
             persname = SubElement(person, 'persName')
             persname.text = s
-
+	
         naam = args.get(k, args.get(_translate(k)))
         el = None
         for k in NAAM_TYPEN:
@@ -450,9 +449,10 @@ class BioDesDoc:
                 el.set('type', k)
                 i += 1 
 
-        if el != None and el.tail  ==' ': el.tail = '' 
+        if el != None and el.tail  ==' ': 
+            el.tail = '' 
 
-        #namen
+	        #namen
         #dit is een soort shortcut argument om namen toe te voegen
         #in een lijst zoals:
         #['Jan K.', ('', 'Jan', '', 'K.', ''), ('dr.','Jan', 'van', 'K', 'graaf van X')]
@@ -638,7 +638,7 @@ class BioDesDoc:
         result['figures'] = self.get_figures()
         
         #text can be escaped: we unescape it
-        if result.has_key('tekst'):
+        if 'tekst' in result:
             result['tekst'] = unescape(result['tekst'])
         return result
 
@@ -646,7 +646,7 @@ class BioDesDoc:
         el = self.get_root()
         result = []
         for n in el.xpath('/biodes/person/persName'):
-            result.append(Naam().from_element(n))
+            result.append(Name().from_element(n))
         return result
 #            if n.get('lang') == 'en':
 #               pass
@@ -681,12 +681,12 @@ class BioDesDoc:
         return self.get_root().xpath(s)
 
     def get_names(self):
-        """return a list of Naam objecten"""
+        """return a list of Name objecten"""
         if self.get_root() is None:
             return []
         result = []
         for n in self.xpath('./person/persName'):
-            result.append(Naam().from_xml(n))    
+            result.append(Name().from_xml(n))    
         return result
     
     get_namen = get_names
@@ -696,7 +696,7 @@ class BioDesDoc:
         """gegeven een name element, probeer het in de volgorde achternaam, 
         prepo voornaam intra, postpo te zetten
         """
-        n = Naam().from_xml(el)
+        n = Name().from_xml(el)
         return n.guess_normal_form()
 
     def _add_rights(self, s):
@@ -734,10 +734,8 @@ class BioDesDoc:
         
                 
     def _add_figure(self, url, head=''):
-        try:
-	        assert is_url(url)
-        except:
-            raise Exception('Url should be a valid URL (you gave "%s")' % url)
+        if not is_url(url): 
+            raise ValueError('Url should be a valid URL (you gave "%s")' % url)
         el_figure = SubElement(self.get_element_biography(), 'figure')
         if head:
             el_head = SubElement(el_figure, 'head')
@@ -1062,16 +1060,16 @@ class BioDesDoc:
             s can be one of:
                 - a string
                 - a fivetuple of strings (prepositie, voornaam, intrapositie, geslachtsnaam, postpositie)
-                - a Naam instance (recommended)
+                - a Name instance (recommended)
         """
         
         person = self.get_root().find('person')
         if type(s) in types.StringTypes:
-            naam = Naam(volledige_naam=s)
+            naam = Name(volledige_naam=s)
         elif type(s) in [types.TupleType, types.ListType]:
             assert len(s) == 5
             prepositie, voornaam, intrapositie, geslachtsnaam, postpositie = s
-            naam = Naam(
+            naam = Name(
                 prepositie=prepositie,
                 voornaam=voornaam, 
                 intrapositie=intrapositie,
@@ -1093,7 +1091,7 @@ class BioDesDoc:
     def _replace_name(self, naam, idx):
         """
         arguments:
-            naam - a Naam instance
+            naam - a Name instance
             idx - an integer - we replace the idx-th name
         """
         el_namen = self.get_root().xpath('./person/persName')
@@ -1190,4 +1188,3 @@ def is_valid_document(s):
     """return true if this document is a valid BioDes document"""
     #XXX implement this!
     return True
-

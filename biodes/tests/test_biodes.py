@@ -1,9 +1,9 @@
 #! /usr/bin/python    
 
-import sys
 import os
 import unittest
-from  biodes import *
+from lxml import etree
+from  biodes import Name, is_url, is_date, BioDesDoc, create_xml,  parse_list, parse_document, BDException
 
 this_dir = os.path.dirname(__file__)
 
@@ -344,14 +344,14 @@ class BiodesTestCase(unittest.TestCase):
     
     def test_replace_name(self):
         doc = BioDesDoc().from_xml(self.create_element())
-        naam = Naam('Pietje Een')
+        naam = Name('Pietje Een')
         doc._add_a_name(naam)
-        naam = Naam('Pietje Twee')
+        naam = Name('Pietje Twee')
         doc._add_a_name(naam)
         self.assertEqual(len(doc.get_names()), 3)
         
         
-        new_naam = Naam('Newt Newman')
+        new_naam = Name('Newt Newman')
         self.assertEqual(new_naam.to_string(),
             u'<persName>Newt <name type="geslachtsnaam">Newman</name></persName>') 
         doc._replace_name(new_naam, 1)
@@ -359,9 +359,9 @@ class BiodesTestCase(unittest.TestCase):
         
     def test_remove_name(self):
         doc = BioDesDoc().from_xml(self.create_element())
-        naam = Naam('Pietje Een')
+        naam = Name('Pietje Een')
         doc._add_a_name(naam)
-        naam = Naam('Pietje Twee')
+        naam = Name('Pietje Twee')
         doc._add_a_name(naam)
         self.assertEqual(doc.get_names()[2].volledige_naam(), 'Pietje Twee', doc.get_names() )
         self.assertEqual(len(doc.get_names()), 3)
