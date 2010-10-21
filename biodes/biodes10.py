@@ -246,10 +246,11 @@ class BioDesDoc:
             if k not in args and TRANSLATIONS.get(k) not in args:
                 raise ValueError('"%s" is a mandatory argument' % k)
             
-        if not args.get('naam') \
-        and not args.get('geslachtsnaam' ) \
-        and not args.get('namen') \
-        and not args.get('names'):
+        if ('naam' in args
+            and 'geslachtsnaam' in args
+            and 'name' in args
+            and 'namen' in args 
+            and 'names' in args):
                 raise ValueError('provide either a "naam", "name", "names" or "namen" argument' )
             
         for k in args.keys():
@@ -686,7 +687,7 @@ class BioDesDoc:
             return []
         result = []
         for n in self.xpath('./person/persName'):
-            result.append(Name().from_xml(n))    
+            result.append(Name().from_xml(n, store_guessed_geslachtsnaam=False))    
         return result
     
     get_namen = get_names
