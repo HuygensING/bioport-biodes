@@ -243,7 +243,7 @@ class BioDesDoc:
         self._set_up_basic_structure()
         filedesc = self.get_element_filedesc()
         for k in self._mandatory_arguments:
-            if k not in args:
+            if k not in args and TRANSLATIONS.get(k) not in args:
                 raise ValueError('"%s" is a mandatory argument' % k)
             
         if not args.get('naam') \
@@ -873,6 +873,11 @@ class BioDesDoc:
                                    notAfter=notAfter)
 
     def _add_event_element(self, el):
+        el_person = self.get_root().find('person')
+        el_person.append(el)
+        return el
+    
+    def _add_state_element(self, el):
         el_person = self.get_root().find('person')
         el_person.append(el)
         return el
