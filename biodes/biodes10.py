@@ -1122,7 +1122,6 @@ def parse_list(url):
     if url.endswith('tar.gz'):
         """we expect an archive containing biodes XML files"""
         from gerbrandyutils import sh
-
         def cleanup(tempdir):
             logging.info("Removing tempdir used for sources import %s" %tempdir)
             if os.path.isdir(tempdir):

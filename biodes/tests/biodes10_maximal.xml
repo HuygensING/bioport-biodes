@@ -14,9 +14,9 @@
   </fileDesc>
   <person>
     <idno type="bioport">biodesid</idno>
-    <persName><name type="geslachtsnaam">Naam1</name></persName>
+    <persName>Naam1</persName>
     <persName><name type="prepositie">mr.</name> <name type="voornaam">Jan</name> <name type="intrapositie">van</name> <name type="geslachtsnaam">Voorbeeld</name> <name type="postpositie">Esq.</name></persName>
-    <persName><name type="geslachtsnaam">John</name></persName>
+    <persName>John</persName>
     <sex value="1"/>
     <event type="birth" when="2009-11-11">
       <date>2009-11-11 in tekst</date>

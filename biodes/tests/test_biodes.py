@@ -353,7 +353,7 @@ class BiodesTestCase(unittest.TestCase):
         
         new_naam = Name('Newt Newman')
         self.assertEqual(new_naam.to_string(),
-            u'<persName>Newt <name type="geslachtsnaam">Newman</name></persName>') 
+            u'<persName>Newt Newman</persName>') 
         doc._replace_name(new_naam, 1)
         self.assertEqual(doc.get_names()[1].to_string(), new_naam.to_string())
         
