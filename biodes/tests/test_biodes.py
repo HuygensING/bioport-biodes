@@ -324,10 +324,9 @@ class BiodesTestCase(unittest.TestCase):
             text='schilder',
             place="Amsterdam",
             )
-
-
     
         doc.to_file('biodes10_maximal.xml')
+        
     def test_to_dict(self):
         doc = BioDesDoc()
         doc.from_url(os.path.join(this_dir, 'bio.xml'))
@@ -349,7 +348,6 @@ class BiodesTestCase(unittest.TestCase):
         naam = Name('Pietje Twee')
         doc._add_a_name(naam)
         self.assertEqual(len(doc.get_names()), 3)
-        
         
         new_naam = Name('Newt Newman')
         self.assertEqual(new_naam.to_string(),
