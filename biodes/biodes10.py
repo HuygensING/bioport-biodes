@@ -751,7 +751,11 @@ class BioDesDoc:
             return []
         urls = self.get_element_biography().xpath('./graphic')
         result = []
-        result += [(url.attrib['url'], '') for url in urls]
+        for url in urls:
+            if 'url' in url.attrib:
+                item = (url.attrib['url'], '')
+                result.append(item)
+        
         figures = self.get_element_biography().xpath('./figure')
         for figure in figures:
             head = ''
