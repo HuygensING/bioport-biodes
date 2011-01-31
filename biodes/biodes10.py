@@ -364,7 +364,7 @@ class BioDesDoc:
             SubElement(revisiondesc, 'changed').set('when', s)
 
 
-	    #INFO ABOUT PUBLISHER
+        #INFO ABOUT PUBLISHER
         publisher = self.get_root().find('fileDesc/publisher') 
         if publisher is None:
             publisher = SubElement(filedesc, 'publisher')
@@ -419,7 +419,7 @@ class BioDesDoc:
         else:
             persname = SubElement(person, 'persName')
             persname.text = s
-	
+    
         naam = args.get(k, args.get(_translate(k)))
         el = None
         for k in NAAM_TYPEN:
@@ -453,7 +453,7 @@ class BioDesDoc:
         if el != None and el.tail  ==' ': 
             el.tail = '' 
 
-	        #namen
+            #namen
         #dit is een soort shortcut argument om namen toe te voegen
         #in een lijst zoals:
         #['Jan K.', ('', 'Jan', '', 'K.', ''), ('dr.','Jan', 'van', 'K', 'graaf van X')]
@@ -1108,7 +1108,31 @@ class BioDesDoc:
         el_naam = el_namen[idx]
         new_el = naam.to_xml()
         el_naam.getparent().replace(el_naam, new_el)
-        
+
+    def add_note(self, text, type=None):
+        notesStmt = self.xpath('./fileDesc/notesStmt')
+        if not notesStmt:
+            el_notesStmt = SubElement(self.get_element_filedesc(), 'notesStmt')
+        else:
+            el_notesStmt = notesStmt[0]
+        el_note = SubElement( el_notesStmt,'note')
+        el_note.text = text
+        el_note.set('type', type)
+        return el_note
+    def add_or_update_note(self, text, type): 
+        notes = self.get_notes(type=type)
+        if notes:
+            assert len(notes) == 1
+            el_note = notes[0]
+            el_note.text = text
+        else:
+            self.add_note(text=text, type=type)
+    def get_notes(self, type=None): 
+        if type:
+            return self.xpath('./fileDesc/notesStmt/note[@type="%s"]' % type)
+        else:
+            return self.xpath('./fileDesc/notesStmt/note' )
+    
 def create_biodes_document(**args):
     biodesdoc = BioDesDoc()
     biodesdoc.from_args(**args)

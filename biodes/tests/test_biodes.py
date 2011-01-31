@@ -431,7 +431,17 @@ class BiodesTestCase(unittest.TestCase):
         
         self.assertRaises(ValueError, doc.add_relation, person='x', relation='xxx')
 
+    def test_add_note(self):
+        doc = BioDesDoc().from_xml(self.create_element())
+        doc.add_note('text of the note', type='sometype' )
 
+        self.assertEqual(len(doc.get_notes()), 1)
+        self.assertEqual(len(doc.get_notes(type='sometype')), 1)
+        self.assertEqual(doc.get_notes(type='sometype')[0].text, 'text of the note')
+        doc.add_or_update_note('note2', type='sometype')
+        self.assertEqual(doc.get_notes(type='sometype')[0].text, 'note2')
+        
+        
 def test_suite():
     test_suite = unittest.TestSuite()
     tests = [BiodesTestCase]
