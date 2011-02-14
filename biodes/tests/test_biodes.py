@@ -472,13 +472,14 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(len(doc.get_references()), 1)
         ref2 = doc.add_reference(uri='http://someref2', text='some text2')
         self.assertEqual(len(doc.get_references()), 2)
-        index1 = ref1.getparent().index(ref1)
-        index2 = ref2.getparent().index(ref2)
+        index1 = doc.get_references()[0][0]
+        index2 = doc.get_references()[1][0]
         doc.remove_reference(index2)
         self.assertEqual(len(doc.get_references()), 1)
         ref1 = doc.update_reference(index=index1, uri='http://somerefx', text='some textx')
         self.assertEqual(len(doc.get_references()), 1)
-        ref = doc.get_references()[0]
+        index , ref = doc.get_references()[0]
+        self.assertEqual(index, 0)
         self.assertEqual(ref1.get('target'), 'http://somerefx')
         self.assertEqual(ref1.text, 'some textx')
         

@@ -231,7 +231,7 @@ class BioDesDoc:
         return self
     
     def get_element_person(self):
-        return self.root.find('person')
+        return self.get_root().find('person')
     
     def get_element_filedesc(self):
         return self.root.find('fileDesc')
@@ -1053,9 +1053,9 @@ class BioDesDoc:
         if el_person is not None:
             el_persName = el_person[0]
         else:
-	        el_person = SubElement(el, 'person') 
-	        el_person.set('id', new_id)
-	        el_persName = SubElement(el_person, 'persName')
+            el_person = SubElement(el, 'person') 
+            el_person.set('id', new_id)
+            el_persName = SubElement(el_person, 'persName')
         el_persName.text = person
         
         #guess the sex of the new person
@@ -1176,6 +1176,14 @@ class BioDesDoc:
         new_el = naam.to_xml()
         el_naam.getparent().replace(el_naam, new_el)
 
+    def _replace_names(self, names):
+        """delete all existing names, and replace them by new name list"""
+        el_namen = self.get_root().xpath('./person/persName')
+        for el_naam in el_namen:
+            el_naam.getparent().remove(el_naam)       
+        for name in names:
+            self._add_a_name(name)
+        
     def add_note(self, text, type=None):
         notesStmt = self.xpath('./fileDesc/notesStmt')
         if not notesStmt:
@@ -1203,21 +1211,27 @@ class BioDesDoc:
         return el
         
     def remove_reference(self, index): 
-        """delete the element at index"""
-        el = self.get_element_person()[index]
+        """delete the element at index - 
+        
+        argument:
+            index:  the position of this <reference> element with respect to othe r<reference> elements in the <person> tag
+        """
+        els = self.xpath('./person/ref')
+        el = els[index]
+#        el = self.get_element_person()[index]
         assert el.tag == 'ref' #check sanity
-        self.remove_element_from_person(index)
+        el.getparent().remove(el)
     
     def update_reference(self, index, uri, text):
         """update the reference at index witht he given info"""
-        el = self.get_element_person()[index]
+        el = self.xpath('./person/ref')[index]
         assert el.tag == 'ref' #check sanity
         el.set('target', uri)
         el.text = text
         return el
     
     def get_references(self): 
-        return self.get_root().xpath('./person/ref')
+        return list(enumerate(self.get_root().xpath('./person/ref')))
         
         
     def get_notes(self, type=None): 
@@ -1314,4 +1328,3 @@ def is_valid_document(s):
     """return true if this document is a valid BioDes document"""
     #XXX implement this!
     return True
-
