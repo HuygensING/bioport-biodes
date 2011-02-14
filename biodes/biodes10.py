@@ -947,16 +947,40 @@ class BioDesDoc:
         return el
 
 
-    def add_or_update_state(self, type, idno=None, text=None, frm=None, to=None, place=None, place_id=None, idx=0):
-        """if a state of type 'occupation' exist, it will update it
-        otherwise, we add a new one"""
-        
-        els =  self.xpath('./person/state[@type="%s"]' % type)
-        
-        if els:
-            el = els[idx]
-        else:
+    def add_or_update_state(self, 
+        type=None, 
+        idno=None, 
+        text=None, 
+        frm=None, 
+        to=None, 
+        place=None, 
+        place_id=None, 
+        idx=0,
+        add_new=False,
+        ):
+        """
+        if add_new is True, then we will ad a new state
+        if idx is given, then we will update the event 
+        if a state of type 'type' exist, it will update it
+        otherwise, we add a new one
+        XXX: yes, this is TOO complicated...
+        """
+        if add_new:
             el = self.add_state(type=type)
+        
+        elif idx:
+            el = self.get_element_person()[idx]
+            #sanity check: dow e really have a 'state' element
+            assert el.tag == 'state'
+        else:
+            if type:
+                els =  self.xpath('./person/state[@type="%s"]' % type)
+            else:
+                els =  self.xpath('./person/state')
+            if els:
+                el = els[0]
+            else:
+                el = self.add_state(type=type)
         self._set_state_attributes(el, type=type, idno=idno, text=text, frm=frm, to=to, place=place, place_id=place_id)
         
         return el
@@ -984,73 +1008,116 @@ class BioDesDoc:
                 el_place.set('key', str( place_id))
 
     
-    def remove_state(self, type, idx):
-        els =  self.xpath('./person/state[@type="%s"]' % type)
-        el = els[idx]
+    def remove_state(self, idx, type=None):
+        if type:
+            els =  self.xpath('./person/state[@type="%s"]' % type)
+            el = els[idx]
+            el.getparent().remove(el)
+        else:
+            self.remove_element_from_person(idx)
+   
+    def remove_element_from_person(self, idx): 
+        el = self.get_element_person()[idx]
         el.getparent().remove(el)
-    
-    
+       
+    def remove_relation(self, idx):
+        el = self.get_element_person()[idx]
+        assert el.tag == 'relation' 
+        self.remove_element_from_person(idx)
+        
+    def update_relation(self, idx, person, relation): 
+        """update the information of this relation"""
+        self.remove_relation(idx)
+        self.add_relation(person, relation)
+        
     def add_relation(self, person, relation):
         """add a person that stands in a type of relation with our person
         
             - person - a string
             - relation - one of ['partner', 'father', 'mother', 'parent', 'child']
         """
-        possible_relations = ['partner', 'father', 'mother', 'parent', 'child']
-        if relation not in possible_relations:
-            raise ValueError('The "relation" argument must be one of %s' % possible_relations)
+#        possible_relations = ['partner', 'father', 'mother', 'parent', 'child', 'brother', 'sister']
+#        if relation not in possible_relations:
+#            raise ValueError('The "relation" argument must be one of %s' % possible_relations)
+        
+        #get an id for the main person of the biodes file
         root_id = self.get_element_person().get('id')
         if not root_id:
             root_id = '#1'
             self.get_element_person().set('id', root_id)
+            
+        #create a new person in the biodes file
         el = self.get_element_person()
-        el_person = SubElement(el, 'person') 
         new_id = '#%s' % abs(hash('%s %s' % (person, relation)))
-        el_person.set('id', new_id)
-        el_persName = SubElement(el_person, 'persName')
+        el_person =  self._get_person_by_id(new_id)
+        if el_person is not None:
+            el_persName = el_person[0]
+        else:
+	        el_person = SubElement(el, 'person') 
+	        el_person.set('id', new_id)
+	        el_persName = SubElement(el_person, 'persName')
         el_persName.text = person
-        sex = None
-        if relation in ['father']:
-            sex = '1'
-        elif relation in [ 'mother']:
-            sex = '2'
-        if sex:
-            el_person.set('sex', sex)
+        
+        #guess the sex of the new person
+#        sex = None
+#        if relation in ['father']:
+#            sex = '1'
+#        elif relation in [ 'mother']:
+#            sex = '2'
+#        if sex:
+#            el_person.set('sex', sex)
+
+        #add the relation elemeent
         el_relation = SubElement(el, 'relation')
-        if relation in ['father', 'mother', 'parent']:
-            el_relation.set('name', 'parent') 
-            el_relation.set('passive', root_id)
-            el_relation.set('active', new_id)
-        elif relation in ['child']:
-            el_relation.set('name', 'parent') 
-            el_relation.set('active', root_id)
-            el_relation.set('passive', new_id)
-        elif relation in ['partner']:
+        if relation in ['partner']:
             el_relation.set('name', 'partner')
             el_relation.set('mutual', '%s %s' % (root_id, new_id))
+#        relation in ['father', 'mother', 'parent', 'child']:
+        else:
+            el_relation.set('name', relation) 
+            el_relation.set('passive', root_id)
+            el_relation.set('active', new_id)
+#        elif relation in ['child']:
+#            el_relation.set('name', 'parent') 
+#            el_relation.set('active', root_id)
+#            el_relation.set('passive', new_id)
         
+    def get_relations(self):
+        """return a list of pairs (type, name_of_relation)"""
+        root_id = self.get_element_person().get('id')
+        el_relations = self.xpath('//relation')
+        result = []
+        for el_relation in el_relations:
+            type = el_relation.get('name')
+            person_ids =  [el_relation.get('active'), el_relation.get('passive')] + el_relation.get('mutual', '').split()
+            person_ids = [x for x in person_ids if x != root_id and x]
+            person_id = person_ids[0]
+            el_person= self._get_person_by_id(person_id)
+            result.append((el_relation, el_person))
+        return result
+    
     def get_relation(self, relation):
         root_id = self.get_element_person().get('id')
         if not root_id:
             return []
         relations = []
-        sex = None
-        if relation in ['father']:
-            sex = '1'
-        elif relation in ['mother']:
-            sex = '2'
-        if relation in ['father', 'mother', 'parent']:
-            relations = self.xpath('//relation[@name="parent"][@passive="%s"]' % root_id)
+#        sex = None
+#        if relation in ['father']:
+#            sex = '1'
+#        elif relation in ['mother']:
+#            sex = '2'
+        if relation in ['father', 'mother', 'parent', 'child']:
+            relations = self.xpath('//relation[@name="%s"][@passive="%s"]' % (relation, root_id))
             person_ids =  ' '.join([el.get('active') for el in relations]).split()
-        elif relation in ['child']:
-            relations = self.xpath('//relation[@name="parent"][@active="%s"]' % root_id)
-            person_ids =  ' '.join([el.get('passive') for el in relations]).split()
+#        elif relation in ['child']:
+#            relations = self.xpath('//relation[@name="parent"][@active="%s"]' % root_id)
+#            person_ids =  ' '.join([el.get('passive') for el in relations]).split()
         elif relation in ['partner']:
             relations = self.xpath('//relation[@name="partner"]')
             person_ids =  ' '.join([el.get('mutual') for el in relations]).split()
         persons = [self._get_person_by_id(person_id) for person_id in person_ids if person_id != '#1']
-        if sex:
-            persons = [el for el in persons if el.get('sex') == sex]
+#        if sex:
+#            persons = [el for el in persons if el.get('sex') == sex]
         return [el[0].text for el in persons]
     
     def _get_person_by_id(self, person_id):
@@ -1127,6 +1194,32 @@ class BioDesDoc:
             el_note.text = text
         else:
             self.add_note(text=text, type=type)
+    
+    def add_reference(self, uri, text):
+        """add an (external reference) - a <ref> element to the person element"""
+        el = SubElement(self.get_element_person(), 'ref')
+        el.set('target', uri)
+        el.text = text
+        return el
+        
+    def remove_reference(self, index): 
+        """delete the element at index"""
+        el = self.get_element_person()[index]
+        assert el.tag == 'ref' #check sanity
+        self.remove_element_from_person(index)
+    
+    def update_reference(self, index, uri, text):
+        """update the reference at index witht he given info"""
+        el = self.get_element_person()[index]
+        assert el.tag == 'ref' #check sanity
+        el.set('target', uri)
+        el.text = text
+        return el
+    
+    def get_references(self): 
+        return self.get_root().xpath('./person/ref')
+        
+        
     def get_notes(self, type=None): 
         if type:
             return self.xpath('./fileDesc/notesStmt/note[@type="%s"]' % type)
@@ -1221,3 +1314,4 @@ def is_valid_document(s):
     """return true if this document is a valid BioDes document"""
     #XXX implement this!
     return True
+

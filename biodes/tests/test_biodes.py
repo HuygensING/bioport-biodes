@@ -403,34 +403,56 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(states, [state])
         
         doc.add_state(type='occupation', idno="1")
+        self.assertEqual(len(states), 1)
         doc.add_state(type='occupation', idno="2")
         doc.add_state(type='occupation', idno="3")
         states = doc.get_states(type='occupation')
         self.assertEqual(len(states), 3)
-        doc.remove_state('occupation', 1)
+        doc.remove_state(type='occupation', idx=1)
         states = doc.get_states(type='occupation')
         self.assertEqual(len(states), 2)
         self.assertEqual([s.get('idno') for s in states], ['1', '3'])
-
-    def test_family(self):
-        doc = BioDesDoc().from_xml(self.create_element())
-        doc.add_relation(person="GiamPaolo1", relation="partner")
-        doc.add_relation(person="GiamPaolo2", relation="child")
-        doc.add_relation(person="GiamPaolo3", relation="father")
-        doc.add_relation(person="GiamPaolo4", relation="mother")
-        doc.add_relation(person="GiamPaolo5", relation="parent")
         
-        self.assertEqual(doc.get_relation('partner'), ['GiamPaolo1'])
-        self.assertEqual(doc.get_relation('child'), ['GiamPaolo2'])
-        self.assertEqual(doc.get_relation('father'), ['GiamPaolo3'])
-        self.assertEqual(doc.get_relation('mother'), ['GiamPaolo4'])
-        self.assertEqual(doc.get_relation('parent'), ['GiamPaolo3','GiamPaolo4',  'GiamPaolo5'])
+        #remove states by index number
+        states = doc.get_states()
+        some_state = states[1]
+        some_index = some_state.getparent().index(some_state)
+        doc.remove_state(idx= some_index)
+        self.assertEqual(len(states)-1, len(doc.get_states()))
+        
+    def test_relations(self):
+        doc = BioDesDoc().from_xml(self.create_element())
+        doc.add_relation(person="Kwik", relation="partner")
+        doc.add_relation(person="Kwek", relation="child")
+        doc.add_relation(person="Kwak", relation="father")
+        doc.add_relation(person="Donald", relation="mother")
+        doc.add_relation(person="Dagobert", relation="parent")
+        
+        self.assertEqual(doc.get_relation('partner'), ['Kwik'])
+        self.assertEqual(doc.get_relation('child'), ['Kwek'])
+        self.assertEqual(doc.get_relation('father'), ['Kwak'])
+        self.assertEqual(doc.get_relation('mother'), ['Donald'])
+        self.assertEqual(doc.get_relation('parent'), ['Dagobert'])
 
         #make sure we are not reading the other names
         self.assertEqual(len(doc.get_names()), 1)
         
-        self.assertRaises(ValueError, doc.add_relation, person='x', relation='xxx')
-
+        self.assertEqual(len(doc.get_relations()), 5)
+        ls =  [(el_relation.get('name'), el_person[0].text) for (el_relation, el_person) in doc.get_relations()]
+        
+        self.assertTrue(('child', 'Kwek') in ls, ls)
+        
+        el_relation, el_person = doc.get_relations()[1]
+        type = el_relation.get('name')
+        name = el_person[0].text
+        index = el_relation.getparent().index(el_relation)
+        #see if deleting and re-adding is sane
+        doc.remove_relation(index)
+        self.assertEqual(len(doc.get_relations()), 4)
+        doc.add_relation(person=name, relation=type)
+        self.assertEqual(len(doc.get_relations()), 5)
+        
+        
     def test_add_note(self):
         doc = BioDesDoc().from_xml(self.create_element())
         doc.add_note('text of the note', type='sometype' )
@@ -440,6 +462,27 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(doc.get_notes(type='sometype')[0].text, 'text of the note')
         doc.add_or_update_note('note2', type='sometype')
         self.assertEqual(doc.get_notes(type='sometype')[0].text, 'note2')
+    
+    
+    def test_add_delete_update_reference(self):
+        
+        doc = BioDesDoc().from_xml(self.create_element())
+        self.assertEqual(len(doc.get_references()), 0)
+        ref1 = doc.add_reference(uri='http://someref', text='some text')
+        self.assertEqual(len(doc.get_references()), 1)
+        ref2 = doc.add_reference(uri='http://someref2', text='some text2')
+        self.assertEqual(len(doc.get_references()), 2)
+        index1 = ref1.getparent().index(ref1)
+        index2 = ref2.getparent().index(ref2)
+        doc.remove_reference(index2)
+        self.assertEqual(len(doc.get_references()), 1)
+        ref1 = doc.update_reference(index=index1, uri='http://somerefx', text='some textx')
+        self.assertEqual(len(doc.get_references()), 1)
+        ref = doc.get_references()[0]
+        self.assertEqual(ref1.get('target'), 'http://somerefx')
+        self.assertEqual(ref1.text, 'some textx')
+        
+        
         
         
 def test_suite():
