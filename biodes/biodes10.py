@@ -1183,6 +1183,17 @@ class BioDesDoc:
             el_naam.getparent().remove(el_naam)       
         for name in names:
             self._add_a_name(name)
+
+    def _replace_references(self, references):
+        """delete all existing references, and replace them by new references list
+        
+        arguments:
+            references: a list of (url, text) tuples"""
+        el_references = self.get_root().xpath('./person/ref')
+        for el_ref in el_references:
+            el_ref.getparent().remove(el_ref)       
+        for url, text in references:
+            self.add_reference(uri=url, text=text)
         
     def add_note(self, text, type=None):
         notesStmt = self.xpath('./fileDesc/notesStmt')
@@ -1231,7 +1242,7 @@ class BioDesDoc:
         return el
     
     def get_references(self): 
-        return list(enumerate(self.get_root().xpath('./person/ref')))
+        return list(enumerate(self.xpath('./person/ref')))
         
         
     def get_notes(self, type=None): 
