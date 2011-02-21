@@ -483,6 +483,25 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(ref1.get('target'), 'http://somerefx')
         self.assertEqual(ref1.text, 'some textx')
         
+    def test_add_delete_update_figure(self):
+        
+        doc = BioDesDoc().from_xml(self.create_element())
+        self.assertEqual(len(doc.get_figures()), 0)
+        ref1 = doc.add_figure(uri='http://someref', text='some text')
+        self.assertEqual(len(doc.get_figures()), 1)
+        ref2 = doc.add_figure(uri='http://someref2', text='some text2')
+        self.assertEqual(len(doc.get_figures()), 2)
+        index1 = doc.get_figures()[0][0]
+        index2 = doc.get_figures()[1][0]
+        doc.remove_figure(index2)
+        self.assertEqual(len(doc.get_figures()), 1)
+        ref1 = doc.update_figure(index=index1, uri='http://somerefx', text='some textx')
+        self.assertEqual(len(doc.get_figures()), 1)
+        index, ill = doc.get_figures()[0]
+        self.assertEqual(index, 0)
+        self.assertEqual(ill.find('graphic').get('url'), 'http://somerefx')
+        self.assertEqual(ill.find('head').text, 'some textx')
+        
         
         
         

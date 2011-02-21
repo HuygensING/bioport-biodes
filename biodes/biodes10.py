@@ -636,7 +636,7 @@ class BioDesDoc:
         result['namen'] = self.get_namen()
 
         #figures is a special case
-        result['figures'] = self.get_figures()
+        result['figures'] = self.get_illustrations()
         
         #text can be escaped: we unescape it
         if 'tekst' in result:
@@ -733,7 +733,7 @@ class BioDesDoc:
                     raise ValueError('The value for %s is not a url (but %s)' % (k, s))
                 self._add_figure(url=s)
         
-                
+            
     def _add_figure(self, url, head=''):
         if not is_url(url): 
             raise ValueError('Url should be a valid URL (you gave "%s")' % url)
@@ -743,7 +743,28 @@ class BioDesDoc:
             el_head.text = head
         SubElement(el_figure, 'graphic').set('url', url)
 
-    def get_figures(self):
+    def add_figure(self, uri, text):
+        self._add_figure(url=uri, head=text)
+        
+    def update_figure(self, index, uri, text=None):
+        url = uri
+        head = text
+        if not is_url(url): 
+            raise ValueError('Url should be a valid URL (you gave "%s")' % url)
+        
+        el_figure = self.get_figures()[index][1]
+        assert el_figure.tag == 'figure' #sanity check
+        if head is not None:
+            el_head = el_figure.find('head')
+            if el_head is None:
+                el_head = SubElement(el_figure, 'head')
+            el_head.text = head
+        el_graphic = el_figure.find('graphic')
+        assert el_graphic.tag == 'graphic'
+        el_graphic.set('url', url)
+
+    
+    def get_illustrations(self):
         # there are two ways in which figures can be encoded - either in plain 
         # 'graphic' tags immediately in the biography element, or within a
         # 'figure' element
@@ -764,6 +785,13 @@ class BioDesDoc:
             url = figure.find('graphic').get('url')
             result.append((url, head))
         return result
+    
+    def get_figures(self):
+        if self.get_element_biography() is None:
+            return []
+        return list(enumerate(self.get_element_biography().xpath('./figure')))
+
+    
     def get_element_biography(self):
         return self.get_root().find('biography')
     def _add_bibl(self, **args):
@@ -1016,6 +1044,22 @@ class BioDesDoc:
         else:
             self.remove_element_from_person(idx)
    
+    def remove_figures(self): 
+        for el in self.xpath('./biography/figure'):
+            el.getparent().remove(el)
+         
+    def remove_figure(self, index): 
+        """delete the element at index - 
+        
+        argument:
+            index:  the position of this <reference> element with respect to othe r<reference> elements in the <person> tag
+        """
+        els = self.get_figures()
+        index, el = els[index]
+        assert el.tag == 'figure'
+#        el = self.get_element_person()[index]
+        el.getparent().remove(el)
+     
     def remove_element_from_person(self, idx): 
         el = self.get_element_person()[idx]
         el.getparent().remove(el)
@@ -1126,10 +1170,7 @@ class BioDesDoc:
         if ls:
             assert len(ls) == 1
             return ls[0]
-    def _remove_illustrations(self): 
-        for el in self.xpath('./biography/graphic'):
-            el.getparent().remove(el)
-            
+
     def _add_a_name(self,s, lang=None):
         """Add a name
         
@@ -1194,6 +1235,18 @@ class BioDesDoc:
             el_ref.getparent().remove(el_ref)       
         for url, text in references:
             self.add_reference(uri=url, text=text)
+            
+    def _replace_figures(self, figures):
+        """delete all existing references, and replace them by new references list
+        
+        arguments:
+            references: a list of (url, text) tuples"""
+            
+        for index, el in self.get_figures():
+            el_ref.getparent().remove(el_ref)       
+        for url, text in figures:
+            self.add_figure(uri=url, text=text)
+            
         
     def add_note(self, text, type=None):
         notesStmt = self.xpath('./fileDesc/notesStmt')
