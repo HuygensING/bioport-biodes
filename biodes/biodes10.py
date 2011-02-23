@@ -791,9 +791,21 @@ class BioDesDoc:
             return []
         return list(enumerate(self.get_element_biography().xpath('./figure')))
 
+    def get_figures_data(self):
+        """returns a list of (url, text) pairs"""
+        result =[]
+        for index, figure in self.get_figures():
+            head = ''
+            if figure.find('head') is not None:
+                head = figure.find('head').text
+            url = figure.find('graphic').get('url')
+            result.append((url, head))
+        return result
+    
     
     def get_element_biography(self):
         return self.get_root().find('biography')
+    
     def _add_bibl(self, **args):
         """ add a 'bibliographical section'
         
@@ -1243,7 +1255,7 @@ class BioDesDoc:
             references: a list of (url, text) tuples"""
             
         for index, el in self.get_figures():
-            el_ref.getparent().remove(el_ref)       
+            el.getparent().remove(el)       
         for url, text in figures:
             self.add_figure(uri=url, text=text)
             
