@@ -922,6 +922,7 @@ class BioDesDoc:
         el_person.append(el)
         return el
     
+                      
     def _add_state_element(self, el):
         el_person = self.get_root().find('person')
         el_person.append(el)
