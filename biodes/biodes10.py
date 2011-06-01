@@ -283,8 +283,8 @@ class BioDesDoc:
             if found_items:
                 if type in ['string', 'date']:
                     if k in ['tekst', 'text']:
-                        return unescape(found_items[0])
-                    return found_items[0]
+                        return unescape(unicode(found_items[0]))
+                    return unicode(found_items[0])
                 elif type == 'list':
                     return [unicode(s) for s in found_items]
                 else:

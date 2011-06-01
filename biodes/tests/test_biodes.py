@@ -333,7 +333,8 @@ class BiodesTestCase(unittest.TestCase):
         d = doc.to_dict()
         assert 'geboortedatum' in d, d
         assert doc.get_value('geboortedatum')
-    
+        self.assertEqual(type(doc.get_value('geboortedatum')), type(u''))
+        
     def test_get_value(self):
         doc = BioDesDoc()
         doc.from_url(os.path.join(this_dir, 'bio.xml'))
