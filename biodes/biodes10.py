@@ -1248,6 +1248,20 @@ class BioDesDoc:
             el_ref.getparent().remove(el_ref)       
         for url, text in references:
             self.add_reference(uri=url, text=text)
+
+    def _replace_extrafields(self, extrafields):
+        """delete all existing extra fields, and replace them by new extra fields list
+        
+        arguments:
+            references: a list of (key, value) tuples"""
+        el_extrafields = self.get_root().xpath('./person/extrafield')
+        for el_field in el_extrafields:
+            el_field.getparent().remove(el_field)       
+        for key, value in extrafields:
+            self.add_extrafield(key=key, value=value)
+
+
+
             
     def _replace_figures(self, figures):
         """delete all existing references, and replace them by new references list
@@ -1309,6 +1323,43 @@ class BioDesDoc:
     
     def get_references(self): 
         return list(enumerate(self.xpath('./person/ref')))
+
+
+
+    def add_extrafield(self, key, value):
+        """add an (external reference) - a <ref> element to the person element"""
+        el = SubElement(self.get_element_person(), 'extrafield')
+        el.set('target', key)
+        el.text = value
+        return el
+        
+    def remove_extrafield(self, index): 
+        """delete the element at index - 
+        
+        argument:
+            index:  the position of this <extrafield> element with respect to other <extrafield> elements in the <person> tag
+        """
+        els = self.xpath('./person/extrafield')
+        el = els[index]
+#        el = self.get_element_person()[index]
+        assert el.tag == 'extrafield' #check sanity
+        el.getparent().remove(el)
+    
+    def update_extrafield(self, index, key, value):
+        """update the field at index witht he given info"""
+        el = self.xpath('./person/extrafield')[index]
+        assert el.tag == 'extrafield' #check sanity
+        el.set('target', key)
+        el.text = value
+        return el
+    
+    def get_references(self): 
+        return list(enumerate(self.xpath('./person/ref')))
+
+
+
+
+
         
         
     def get_notes(self, type=None): 

@@ -483,6 +483,26 @@ class BiodesTestCase(unittest.TestCase):
         self.assertEqual(index, 0)
         self.assertEqual(ref1.get('target'), 'http://somerefx')
         self.assertEqual(ref1.text, 'some textx')
+
+    def test_add_delete_update_extrafield(self):
+        
+        doc = BioDesDoc().from_xml(self.create_element())
+        self.assertEqual(len(doc.get_extrafields()), 0)
+        ref1 = doc.add_extrafield(key='sleutel', value='some value')
+        self.assertEqual(len(doc.get_extrafields()), 1)
+        ref2 = doc.add_extrafield(key='sleutel2', value='some value2')
+        self.assertEqual(len(doc.get_extrafields()), 2)
+        index1 = doc.get_extrafields()[0][0]
+        index2 = doc.get_extrafields()[1][0]
+        doc.remove_extrafield(index2)
+        self.assertEqual(len(doc.get_extrafields()), 1)
+        ref1 = doc.update_extrafield(index=index1, key='sleuteldifferent', value='different value')
+        self.assertEqual(len(doc.get_extrafields()), 1)
+        index , ref = doc.get_extrafields()[0]
+        self.assertEqual(index, 0)
+        self.assertEqual(ref1.get('target'), 'sleuteldifferent')
+        self.assertEqual(ref1.text, 'different value')
+
         
     def test_add_delete_update_figure(self):
         
