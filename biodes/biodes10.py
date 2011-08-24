@@ -1353,8 +1353,8 @@ class BioDesDoc:
         el.text = value
         return el
     
-    def get_references(self): 
-        return list(enumerate(self.xpath('./person/ref')))
+    def get_extrafields(self): 
+        return list(enumerate(self.xpath('./person/extrafield')))
 
 
 
