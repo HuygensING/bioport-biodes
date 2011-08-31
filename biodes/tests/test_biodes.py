@@ -28,12 +28,14 @@ class BiodesTestCase(unittest.TestCase):
         s = create_xml(**kw)
         return etree.fromstring(s)
     
+ 
     def test_create_xml(self):
         create_element = self.create_element 
 
         #should raise an error if no argument are given         
         self.assertRaises(Exception, create_xml) 
         #minimale informatie
+        BioDesDoc().from_url('http://www.historici.nl/Onderzoek/Projecten/BWN/biodes/bio/1/aa?bioport_local_id=aa')
         biodes = create_element()
 
         self.assertEqual(biodes.tag, 'biodes')
@@ -67,7 +69,6 @@ class BiodesTestCase(unittest.TestCase):
             )
         tagged_name = etree.tostring(biodes.xpath('//persName')[0]).strip()
         expected_result = '<persName><name type="prepositie">a</name> <name type="voornaam">b</name> <name type="intrapositie">c</name> <name type="geslachtsnaam">d</name> <name type="postpositie">e</name></persName>'
-
 
         biodes = create_element(
             namen = ['Jan K.', ('', 'Jan', '', 'K.', ''), ('dr.','Jan', 'van', 'K', 'graaf van X')]
@@ -137,7 +138,7 @@ class BiodesTestCase(unittest.TestCase):
         test_round_trip(text='some tekst')
         test_round_trip(text='some tekst2')
         
-         
+        
     def test_type_checking(self):
         self.assertTrue(is_url('http://www.inghist.nl'))
         self.assertFalse(is_url('xhttp://www.inghist.nl'))
@@ -165,6 +166,10 @@ class BiodesTestCase(unittest.TestCase):
         url = "biodes02_example.xml"
         url = os.path.join(this_dir, url)
         doc = parse_document(url)
+        #see if &lt; has become <
+        self.assertEqual(doc['tekst'][0], '<')
+
+
         
     def test_analyze_element(self):
 
@@ -535,5 +540,3 @@ def test_suite():
 
 if __name__=='__main__':
     unittest.main(defaultTest='test_suite')
-
-
