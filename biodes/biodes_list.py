@@ -1,11 +1,11 @@
 #
 #
 #
-import re, types
+#import re, types
 from lxml import etree
-from lxml.etree import Element, SubElement
-from urllib import urlopen
-from xml.sax.saxutils import unescape
+#from lxml.etree import Element, SubElement
+#from urllib import urlopen
+#from xml.sax.saxutils import unescape
 
 from biodes import BioDesDoc
 

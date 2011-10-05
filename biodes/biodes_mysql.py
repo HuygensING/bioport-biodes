@@ -7,7 +7,7 @@
 
 import MySQLdb
 from biodes import BioDesDoc
-from lxml import etree
+#from lxml import etree
 
 #def connect(db='bioport', user='jge', passwd='G3rbr@ndy'):
 def connect(db='bioport', user='root', passwd=''):
