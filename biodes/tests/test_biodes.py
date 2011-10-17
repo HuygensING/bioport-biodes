@@ -493,20 +493,30 @@ class BiodesTestCase(unittest.TestCase):
         
         doc = BioDesDoc().from_xml(self.create_element())
         self.assertEqual(len(doc.get_extrafields()), 0)
-        ref1 = doc.add_extrafield(key='sleutel', value='some value')
+        doc.add_extrafield(key='sleutel', value='some value')
         self.assertEqual(len(doc.get_extrafields()), 1)
-        ref2 = doc.add_extrafield(key='sleutel2', value='some value2')
+        doc.add_extrafield(key='sleutel2', value='some value2')
         self.assertEqual(len(doc.get_extrafields()), 2)
-        index1 = doc.get_extrafields()[0][0]
-        index2 = doc.get_extrafields()[1][0]
+        index1 = 0
+        index2 = 1 
         doc.remove_extrafield(index2)
         self.assertEqual(len(doc.get_extrafields()), 1)
         ref1 = doc.update_extrafield(index=index1, key='sleuteldifferent', value='different value')
         self.assertEqual(len(doc.get_extrafields()), 1)
-        index , ref = doc.get_extrafields()[0]
-        self.assertEqual(index, 0)
         self.assertEqual(ref1.get('target'), 'sleuteldifferent')
         self.assertEqual(ref1.text, 'different value')
+        
+        #this is what happens when saveing fom the UI
+        doc._replace_extrafields([])
+        self.assertEqual(len(doc.get_extrafields()), 0)
+        doc.add_extrafield(key='key0', value='some value')
+        doc.add_extrafield(key='key1', value='some value2')
+        self.assertEqual(doc.get_extrafields()[0].get('target'), 'key0')
+        self.assertEqual(doc.get_extrafields()[1].get('target'), 'key1')
+        doc._replace_extrafields([('key0', 'some value'), ('key1', 'some value2')])
+        self.assertEqual(doc.get_extrafields()[0].get('target'), 'key0')
+        self.assertEqual(doc.get_extrafields()[1].get('target'), 'key1')
+        
 
         
     def test_add_delete_update_figure(self):

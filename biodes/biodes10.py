@@ -1249,19 +1249,6 @@ class BioDesDoc:
         for url, text in references:
             self.add_reference(uri=url, text=text)
 
-    def _replace_extrafields(self, extrafields):
-        """delete all existing extra fields, and replace them by new extra fields list
-        
-        arguments:
-            references: a list of (key, value) tuples"""
-        el_extrafields = self.get_root().xpath('./person/extrafield')
-        for el_field in el_extrafields:
-            el_field.getparent().remove(el_field)       
-        for key, value in extrafields:
-            self.add_extrafield(key=key, value=value)
-
-
-
             
     def _replace_figures(self, figures):
         """delete all existing references, and replace them by new references list
@@ -1324,10 +1311,11 @@ class BioDesDoc:
     def get_references(self): 
         return list(enumerate(self.xpath('./person/ref')))
 
-
-
     def add_extrafield(self, key, value):
-        """add an (external reference) - a <ref> element to the person element"""
+        """add an (external reference) - a <ref> element to the person element
+           
+        returns the Element that was added
+        """
         el = SubElement(self.get_element_person(), 'extrafield')
         el.set('target', key)
         el.text = value
@@ -1352,15 +1340,22 @@ class BioDesDoc:
         el.set('target', key)
         el.text = value
         return el
-    
-    def get_extrafields(self): 
-        return list(enumerate(self.xpath('./person/extrafield')))
+ 
 
-
-
-
-
+    def _replace_extrafields(self, extrafields):
+        """delete all existing extra fields, and replace them by new extrafields list
         
+        arguments:
+            references: a list of (key, value) tuples (both strings)"""
+        el_extrafields = self.get_root().xpath('./person/extrafield')
+        for el_field in el_extrafields:
+            el_field.getparent().remove(el_field)       
+        for key, value in extrafields:
+            self.add_extrafield(key=key, value=value)
+  
+    def get_extrafields(self): 
+        """return a list of Element instances"""
+        return list(self.xpath('./person/extrafield'))
         
     def get_notes(self, type=None): 
         if type:
