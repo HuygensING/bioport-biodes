@@ -54,7 +54,14 @@ def _translate(k):
     return TRANSLATIONS.get(k)
 
 def is_date(s):
-    #dates are of the form yyyy-mm-dd
+    """return True if s represents a valid date, False otherwise
+    
+    dates are of the form 
+	    yyyy-mm-dd
+	    yyyy-mm
+	    yyyy
+       
+    """
     if not s:
         return 0
     if s.startswith('-'):
