@@ -801,7 +801,7 @@ class BioDesDoc:
     def get_figures_data(self):
         """returns a list of (url, text) pairs"""
         result =[]
-        for index, figure in self.get_figures():
+        for _index, figure in self.get_figures():
             head = ''
             if figure.find('head') is not None:
                 head = figure.find('head').text
@@ -1263,7 +1263,7 @@ class BioDesDoc:
         arguments:
             references: a list of (url, text) tuples"""
             
-        for index, el in self.get_figures():
+        for _index, el in self.get_figures():
             el.getparent().remove(el)       
         for url, text in figures:
             self.add_figure(uri=url, text=text)
