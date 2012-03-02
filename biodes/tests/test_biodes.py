@@ -34,8 +34,10 @@ class BiodesTestCase(unittest.TestCase):
 
         #should raise an error if no argument are given         
         self.assertRaises(Exception, create_xml) 
+        url = 'file:///%s' % os.path.join(this_dir, 'biodes10_minimal.xml')
+        BioDesDoc().from_url(url)
+        
         #minimale informatie
-        BioDesDoc().from_url('http://www.historici.nl/Onderzoek/Projecten/BWN/biodes/bio/1/aa?bioport_local_id=aa')
         biodes = create_element()
 
         self.assertEqual(biodes.tag, 'biodes')
