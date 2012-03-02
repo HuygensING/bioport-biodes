@@ -251,7 +251,7 @@ class BioDesDoc:
         filedesc = self.get_element_filedesc()
         for k in self._mandatory_arguments:
             if k not in args and TRANSLATIONS.get(k) not in args:
-                raise ValueError('"%s" is a mandatory argument' % k)
+                raise ValueError('"%s" is a mandatory argument' % TRANSLATIONS.get(k))
             
         if ('naam' in args
             and 'geslachtsnaam' in args
