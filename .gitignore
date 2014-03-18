@@ -1,4 +1,7 @@
+*.pyc
+*.swp
+.project
+.pydevproject
+.settings/
 .svn/
 biodes.egg-info/
-*.swp
-*.pyc
